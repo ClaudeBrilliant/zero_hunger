@@ -6,6 +6,8 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import plotly.express as px
+from dash import Dash, dcc, html
 
 # --- Load dataset ---
 file_path = "/home/clyde/Downloads/climate_change_agriculture_dataset.csv"
@@ -56,3 +58,35 @@ sns.heatmap(df_encoded.corr(), annot=False, cmap='coolwarm')
 plt.title("Correlation Heatmap (Encoded Data)")
 plt.show()
 
+# ✅ Ensure these values exist from your model evaluation
+mae = 236.71
+mse = 73508.20
+r2 = -0.0256
+
+# Create the dashboard app
+app = Dash(__name__)
+
+# Scatter plot comparing actual vs predicted values
+fig = px.scatter(
+    x=y_test,
+    y=y_pred,
+    title="Actual vs Predicted Crop Yield",
+    labels={'x': 'Actual Crop Yield', 'y': 'Predicted Crop Yield'},
+    trendline="ols"
+)
+
+# Dashboard layout
+app.layout = html.Div([
+    html.H1("🌾 Zero Hunger ML Dashboard", style={'textAlign': 'center', 'color': 'green'}),
+
+    html.Div([
+        html.P(f"Mean Absolute Error (MAE): {mae:.2f}", style={'color': 'blue', 'fontSize': 18}),
+        html.P(f"Mean Squared Error (MSE): {mse:.2f}", style={'color': 'orange', 'fontSize': 18}),
+        html.P(f"R² Score: {r2:.2f}", style={'color': 'red', 'fontSize': 18}),
+    ], style={'textAlign': 'center', 'marginBottom': 30}),
+
+    dcc.Graph(figure=fig)
+])
+
+if __name__ == '__main__':
+    app.run(debug=True)
